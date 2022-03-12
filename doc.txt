@@ -1,0 +1,73 @@
+1. 生成自签名证书
+openssl req -newkey rsa:2048 -nodes -keyout ./key.pem -x509 -days 3650 -out ./cer.pem
+
+/workspace/key.pem
+/workspace/cer.pem
+
+2. 安装trojan
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quickstart/master/trojan-quickstart.sh)"
+
+Unpacking trojan 1.16.0...
+Installing trojan 1.16.0 to /usr/local/bin/trojan...
+Installing trojan server config to /usr/local/etc/trojan/config.json...
+Installing trojan systemd service to /etc/systemd/system/trojan.service...
+Reloading systemd daemon...
+System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+
+3. 修改配置文件 /usr/local/etc/trojan/config.json
+替换掉cert和key，密码随意
+{
+    "run_type": "server",
+    "local_addr": "0.0.0.0",
+    "local_port": 3443,
+    "remote_addr": "127.0.0.1",
+    "remote_port": 80,
+    "password": [
+        "password123",
+        "password234"
+    ],
+    "log_level": 1,
+    "ssl": {
+        "cert": "/workspace/cer.pem",
+        "key": "/workspace/key.pem",
+        "key_password": "",
+        "cipher": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+        "cipher_tls13": "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
+        "prefer_server_cipher": true,
+        "alpn": [
+            "http/1.1"
+        ],
+        "alpn_port_override": {
+            "h2": 81
+        },
+        "reuse_session": true,
+        "session_ticket": false,
+        "session_timeout": 600,
+        "plain_http_response": "",
+        "curves": "",
+        "dhparam": ""
+    },
+    "tcp": {
+        "prefer_ipv4": false,
+        "no_delay": true,
+        "keep_alive": true,
+        "reuse_port": false,
+        "fast_open": false,
+        "fast_open_qlen": 20
+    },
+    "mysql": {
+        "enabled": false,
+        "server_addr": "127.0.0.1",
+        "server_port": 3306,
+        "database": "trojan",
+        "username": "trojan",
+        "password": "",
+        "key": "",
+        "cert": "",
+        "ca": ""
+    }
+}
+
+4. 运行
+/usr/local/bin/trojan /usr/local/etc/trojan/config.json
