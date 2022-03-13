@@ -1,5 +1,5 @@
 image:
-  file: gitpod.Dockerfile
+  file: .gitpod.Dockerfile
 tasks:
   - name: tailscaled
     command: |
@@ -18,3 +18,7 @@ tasks:
         # store the tailscale state into gitpod user
         gp env TS_STATE_TAILSCALE_EXAMPLE="$(sudo cat /var/lib/tailscale/tailscaled.state)"
       fi
+  - name: Static Server
+    command: python3 -m http.server 8080
+    openMode: split-right
+    
